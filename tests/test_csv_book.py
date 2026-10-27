@@ -1,7 +1,9 @@
 import os
+import csv
 from textwrap import dedent
 from unittest import TestCase
 
+import pytest
 import pyexcel_io.manager as manager
 from pyexcel_io import get_data
 from pyexcel_io.sheet import NamedContent
@@ -188,3 +190,27 @@ def test_utf16_memory_encoding():
     writer.write_array(content)
     actual = io.getvalue()
     eq_(actual, "Äkkilähdöt,Matkakirjoituksia,Matkatoimistot\n")
+
+
+@pytest.mark.parametrize("file_type,delimiter", [("csv", ","), ("tsv", "\t")])
+@pytest.mark.parametrize("encoding", ["utf-8", "utf-16"])
+@pytest.mark.parametrize("record_ending", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("embedded_ending", ["\n", "\r\n", "\r"])
+def test_file_reader_preserves_embedded_newlines(
+    tmp_path, file_type, delimiter, encoding, record_ending, embedded_ending
+):
+    path = tmp_path / ("embedded." + file_type)
+    rows = [
+        ["first" + embedded_ending + "second", 'quoted "text"'],
+        ["tail", "ok"],
+    ]
+    with open(str(path), "w", encoding=encoding, newline="") as stream:
+        writer = csv.writer(
+            stream,
+            delimiter=delimiter,
+            lineterminator=record_ending,
+            quoting=csv.QUOTE_ALL,
+        )
+        writer.writerows(rows)
+    result = get_data(str(path), encoding=encoding)
+    assert result[path.name] == rows
