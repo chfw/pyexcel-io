@@ -171,7 +171,10 @@ class CSVFileReader(CSVSheetReader):
 
     def get_file_handle(self):
         unicode_reader = open(
-            self._native_sheet.payload, "r", encoding=self._encoding
+            self._native_sheet.payload,
+            "r",
+            encoding=self._encoding,
+            newline="",
         )
         return unicode_reader
 

@@ -1,6 +1,12 @@
 name: pyexcel-io
 organisation: pyexcel
 releases:
+- version: 0.6.9
+  date: tbd
+  changes:
+  - action: updated
+    details:
+    - Preserve embedded carriage returns and CRLF in quoted CSV and TSV cells.
 - changes:
   - action: updated
     details:
